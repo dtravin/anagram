@@ -1,0 +1,20 @@
+# Anagram finder 
+
+Tiny program finds anagram to a given word in a dictionary.
+
+Implementation details:
+* ASCII charset supported
+* Whitespace and carriage return as delimiter
+* Dictionary file size limit is 1024*1024 bytes
+
+## Requirements
+make, gcc
+
+## Build
+make
+
+## Run
+./bin/anagram lemmad.txt lemmik
+
+## Tested on
+Ubuntu 16.04 TLS, gcc 5.4
