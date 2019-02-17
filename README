@@ -14,7 +14,7 @@ make, gcc
 make
 
 ## Run
-./bin/anagram lemmad.txt lemmik
+for i in {1..10}; do ./bin/anagram lemmad.txt lemmik; done
 
 ## Tested on
 Ubuntu 16.04 TLS, gcc 5.4

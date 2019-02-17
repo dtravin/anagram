@@ -24,7 +24,6 @@ char* read_file(char* fname, unsigned long* fileLength) {
         return NULL;
     }
 
-    //Get file length
     fseek(file, 0, SEEK_END);
     fileLen=ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -37,7 +36,6 @@ char* read_file(char* fname, unsigned long* fileLength) {
         return NULL;
     }
 
-    //Read file contents into buffer
     if (fread(buffer, fileLen, 1, file) == 0) {
         fprintf(stderr, "Unable to read dictionary");
         fclose(file);
@@ -71,6 +69,8 @@ int main(int argc, char* argv[])
 
     char candidate_letters[ALPHABET_SIZE];
 
+    // Optimization #1
+    // Read entire file into memory
     unsigned long fileLen;
     char* buffer = read_file(argv[1], &fileLen);
     if (buffer == NULL) {
@@ -89,7 +89,13 @@ int main(int argc, char* argv[])
         char c = buffer[p];
         if (c != '\n' && c != '\r' && c != '\t' && c != ' ') {
             end++;
-            // Optimization #1
+            // Optimization #2
+            // Skip if number of letters in the word
+            // is less than number of letters in dictionary word
+            if (end - start > lookup_len) {
+                skip_this_word = 1;
+            }
+            // Optimization #3
             // Skip dictionary word if not allowed character found
             if (lookup_letters[c] == 0) {
                 skip_this_word = 1;
@@ -97,24 +103,22 @@ int main(int argc, char* argv[])
         } else {
             if (skip_this_word) {
                 skip_this_word = 0;
-                goto next_word;
-            }
-            // Optimization #2
-            // Skip if number of characters in the word do not match dictionary word
-            if (end-start != lookup_len) {
-                goto next_word;
-            }
-            memset(candidate_letters, 0, ALPHABET_SIZE*sizeof(char));
+            } else {
+                // Optimization #4
+                // memset faster than loop
+                memset(candidate_letters, 0, ALPHABET_SIZE*sizeof(char));
                 for (int k=start;k<end;k++) {
                     candidate_letters[buffer[k]]++;
                 }
+                // Optimization #5
+                // memory compare by blocks
                 if (memcmp(lookup_letters, candidate_letters, ALPHABET_SIZE) == 0) {
                     strcat(result, ",");
                     buffer[p] = 0;
                     char* word = buffer + start;
                     strcat(result, word);
                 }
-        next_word: ;
+            }
             new_word = 1;
         }
     }
